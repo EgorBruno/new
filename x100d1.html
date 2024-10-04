@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Hackers Web</title>
+    <meta name="theme-color" content="#00ff00">
+    <style>
+        /* Основные стили */
+        body, html {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            font-family: 'Courier New', Courier, monospace;
+            overflow-y: scroll;
+            scroll-behavior: smooth;
+            height: 200vh; /* Увеличиваем высоту страницы для прокрутки */
+            user-select: none; /* Запретить выделение текста */
+        }
+
+        /* Оформление заголовков и текста */
+        h1, h2, p {
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 4rem;
+            margin-top: 100px;
+            color: #00ff00; /* Зеленый цвет для заголовка */
+            position: relative; /* Позволяет использовать absolute позиционирование для анимации */
+            opacity: 0; /* Скрыть заголовок в начале */
+            transform: translateY(-50vh); /* Сдвинуть заголовок вверх */
+            transition: all 2s ease; /* Плавная анимация */
+        }
+
+        h2 {
+            color: white;
+            font-size: 2rem;
+            margin-bottom: 50px;
+        }
+
+        p {
+            font-size: 1.2rem;
+            margin: 20px;
+            color: #00ff00;
+            line-height: 1.5;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Оформление цитаты */
+        blockquote {
+            background-color: rgba(0, 255, 0, 0.1);
+            border-left: 5px solid #00ff00;
+            padding: 10px 20px;
+            margin: 20px auto;
+            font-style: italic;
+            font-size: 1.5rem;
+            color: #00ff00;
+            max-width: 800px;
+        }
+
+        /* Анимация матрицы */
+        .matrix {
+            position: absolute;
+            width: 100%;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+        }
+
+        .matrix div {
+            position: absolute;
+            top: -100px;
+            font-size: 1.5rem;
+            animation: fall linear infinite;
+            color: #00ff00; /* Зеленый цвет для символов матрицы */
+        }
+
+        /* Анимация движения */
+        @keyframes fall {
+            0% {
+                top: -100px;
+                opacity: 0;
+            }
+            30% {
+                opacity: 1;
+            }
+            100% {
+                top: calc(100vh - 250px); /* Убедитесь, что цифры останавливаются выше контента */
+                opacity: 0;
+            }
+        }
+
+        /* Новый стиль для истории о хакерах */
+        .history {
+            font-size: 1.2rem;
+            margin: 20px;
+            color: #00ff00;
+            line-height: 1.5;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            background-color: rgba(0, 255, 0, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Анимация "Матрицы" -->
+    <div class="matrix"></div>
+
+    <!-- Заголовок, который будет анимироваться -->
+    <h1 id="main-title">Welcome to the Hackers World</h1>
+
+    <!-- Встроенная музыка -->
+    <audio id="background-music" autoplay loop muted>
+        <source src="1.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <!-- Остальной контент будет загружаться после анимации -->
+    <div id="content" style="display: none;">
+        <h2>Where the code is the only language</h2>
+
+        <!-- Статья -->
+        <p>We are the guardians of the digital realm, the masters of the unseen. 
+           In this world, everything can be cracked, nothing is impossible. 
+           Are you ready to join us?</p>
+
+        <blockquote>
+            “Hacking is not about breaking the law; it's about understanding the technology that governs our world.”
+        </blockquote>
+
+        <p>Hackers are often misunderstood. They are not simply criminals, but rather individuals who possess a deep understanding of systems and networks. 
+           Some hackers work to expose vulnerabilities and improve security, while others operate in the shadows for personal gain. 
+           Regardless of their intentions, they shape the digital landscape in ways that many cannot comprehend.</p>
+
+        <blockquote>
+            “The greatest weapon of a hacker is knowledge. With knowledge, one can navigate the intricate web of the digital world.”
+        </blockquote>
+
+        <p>In the end, the world of hacking is a complex tapestry of ethics, skills, and motivations. 
+           As technology continues to evolve, so too does the role of the hacker. 
+           They are both creators and destroyers, healеры и manipulаторы. In this ever-changing digital age, understanding the hacker mentality is more crucial than ever.</p>
+
+        <!-- История о хакерах -->
+        <div class="history">
+            <h2>The Rise of Hackers</h2>
+            <p>The term "hacker" originally referred to someone who made furniture with an axe. However, as technology evolved, so did the meaning of the word. 
+            In the 1960s, the first computer hackers emerged, mainly in university settings, where they sought to push the boundaries of technologies. 
+            By the 1980s, hacking had entered the public consciousness, fueled by media coverage of high-profile hacks and the emergence of computer networks. 
+            The hacker subculture began to flourish, giving rise to a diverse community that included how ethical hackers, who sought to improve security, and malicious actors, who exploited vulnerabilities for personal gain.</p>
+        </div>
+    </div>
+
+    <script>
+        // Генерация случайных цифр и создание анимации
+        const matrix = document.querySelector('.matrix');
+        const symbols = '0123456789';
+
+        // Функция для создания символов "Матрицы"
+        function createSymbol() {
+            const symbol = document.createElement('div');
+            symbol.innerHTML = symbols[Math.floor(Math.random() * symbols.length)];
+            symbol.style.left = Math.random() * 100 + 'vw';
+            symbol.style.animationDuration = Math.random() * 10 + 5 + 's';
+            matrix.appendChild(symbol);
+
+            // Удаление символа после завершения анимации
+            setTimeout(() => {
+                symbol.remove();
+            }, 15000);
+        }
+
+        // Периодическая генерация новых символов
+        setInterval(createSymbol, 100);
+
+        // Анимация заголовка и матрицы
+        window.onload = function() {
+            const title = document.getElementById('main-title');
+            title.style.opacity = 1; // Показать заголовок
+            title.style.transform = "translateY(0)"; // Вернуть заголовок на место
+
+            // Показать остальной контент через 2 секунды
+            setTimeout(() => {
+                document.getElementById('content').style.display = 'block';
+            }, 2000); 
+        };
+
+        // Воспроизведение музыки при первом клике
+        window.addEventListener('click', function() {
+            const music = document.getElementById('background-music');
+            music.muted = false; // Отключаем "mute"
+            music.play();        // Включаем воспроизведение
+        });
+    </script>
+</body>
+</html>
+
