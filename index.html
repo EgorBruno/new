@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML5 Game</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: Arial, sans-serif;
+            background-color: black;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        #infoContainer {
+            width: 320px;
+            display: flex;
+            justify-content: space-between;
+            color: white;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        #gameContainer {
+            position: relative;
+            width: 320px;
+            height: 450px;
+            background-color: black;
+            overflow: hidden;
+            border: 2px solid #333;
+            margin-top: 10px;
+        }
+        #player {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            background-color: green;
+            bottom: 50px;
+            left: 147.5px;
+            border-radius: 50%;
+        }
+        .obstacle {
+            position: absolute;
+            background-color: red;
+            top: 0;
+            border-radius: 50%;
+        }
+        .control-buttons {
+            margin-top: 15px;
+        }
+        button {
+            background-color: green;
+            color: white;
+            font-size: 24px;
+            border: none;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            cursor: pointer;
+            margin: 0 20px;
+        }
+        #gameOverScreen {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+            z-index: 100;
+        }
+        #devMenu {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+            z-index: 100;
+        }
+        #devMenu input {
+            margin-top: 10px;
+            padding: 5px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div id="infoContainer">
+        <div id="scoreDisplay" ondblclick="openDevMenu()">Score: 0</div>
+        <div id="levelDisplay">Level: 1</div>
+    </div>
+    <div id="gameContainer">
+        <div id="player"></div>
+    </div>
+    <div id="gameOverScreen">
+        <h2>Вы проиграли!</h2>
+        <p id="finalScore">Очки: 0</p>
+        <p id="finalLevel">Уровень: 1</p>
+        <p id="countdown">Перезапуск через: 5</p>
+    </div>
+    <div id="devMenu">
+        <h2>Меню разработчика</h2>
+        <label for="newScore">Установить очки:</label>
+        <input type="number" id="newScore" placeholder="Введите очки"><br>
+        <label for="newLevel">Установить уровень:</label>
+        <input type="number" id="newLevel" placeholder="Введите уровень"><br>
+        <button onclick="applyDevSettings()">Применить</button>
+        <button onclick="closeDevMenu()">Закрыть</button>
+    </div>
+    <div class="control-buttons">
+        <button onclick="moveLeft()">←</button>
+        <button onclick="moveRight()">→</button>
+    </div>
+
+    <script>
+        let player = document.getElementById('player');
+        let gameContainer = document.getElementById('gameContainer');
+        let levelDisplay = document.getElementById('levelDisplay');
+        let scoreDisplay = document.getElementById('scoreDisplay');
+        let gameOverScreen = document.getElementById('gameOverScreen');
+        let countdown = document.getElementById('countdown');
+        let finalScore = document.getElementById('finalScore');
+        let finalLevel = document.getElementById('finalLevel');
+        let devMenu = document.getElementById('devMenu');
+        let playerPos = 147.5;
+        let level = 1;
+        let score = 0;
+        let obstacleSpeed = 2;
+        let obstacleFrequency = 2000;
+        let playerSize = 25;
+        let obstacleSize = 20;
+        let gameInterval, obstacleInterval, speedIncreaseInterval;
+
+        function moveLeft() {
+            if (playerPos > 0) {
+                playerPos -= 15;
+                player.style.left = playerPos + 'px';
+            }
+        }
+
+        function moveRight() {
+            if (playerPos < gameContainer.offsetWidth - player.offsetWidth) {
+                playerPos += 15;
+                player.style.left = playerPos + 'px';
+            }
+        }
+
+        function createObstacle() {
+            let obstacle = document.createElement('div');
+            obstacle.classList.add('obstacle');
+            obstacle.style.width = obstacleSize + 'px';
+            obstacle.style.height = obstacleSize + 'px';
+            obstacle.style.left = Math.floor(Math.random() * (gameContainer.offsetWidth - obstacleSize)) + 'px';
+            gameContainer.appendChild(obstacle);
+
+            let obstacleFall = setInterval(() => {
+                let obstacleTop = obstacle.offsetTop + obstacleSpeed;
+                obstacle.style.top = obstacleTop + 'px';
+
+                if (detectCollision(player, obstacle)) {
+                    clearInterval(obstacleFall);
+                    showGameOverScreen();
+                }
+
+                if (obstacleTop > gameContainer.offsetHeight) {
+                    clearInterval(obstacleFall);
+                    gameContainer.removeChild(obstacle);
+                    score++;
+                    scoreDisplay.textContent = 'Score: ' + score;
+
+                    if (score % 10 === 0) {
+                        increaseLevel();
+                    }
+                }
+            }, 20);
+        }
+
+        function detectCollision(player, obstacle) {
+            let playerRect = player.getBoundingClientRect();
+            let obstacleRect = obstacle.getBoundingClientRect();
+            return !(
+                playerRect.top > obstacleRect.bottom ||
+                playerRect.bottom < obstacleRect.top ||
+                playerRect.left > obstacleRect.right ||
+                playerRect.right < obstacleRect.left
+            );
+        }
+
+        function showGameOverScreen() {
+            clearInterval(obstacleInterval);
+            clearInterval(speedIncreaseInterval);
+            finalScore.textContent = 'Очки: ' + score;
+            finalLevel.textContent = 'Уровень: ' + level;
+            gameOverScreen.style.display = 'block';
+            let countdownValue = 5;
+            countdown.textContent = `Перезапуск через: ${countdownValue}`;
+            let countdownInterval = setInterval(() => {
+                countdownValue--;
+                countdown.textContent = `Перезапуск через: ${countdownValue}`;
+                if (countdownValue === 0) {
+                    clearInterval(countdownInterval);
+                    resetGame();
+                }
+            }, 1000);
+        }
+
+        function resetGame() {
+            gameOverScreen.style.display = 'none';
+            level = 1;
+            score = 0;
+            obstacleSpeed = 2;
+            obstacleFrequency = 2000;
+            playerSize = 25;
+            obstacleSize = 20;
+            player.style.width = playerSize + 'px';
+            player.style.height = playerSize + 'px';
+            levelDisplay.textContent = 'Level: ' + level;
+            scoreDisplay.textContent = 'Score: ' + score;
+            startGame();
+        }
+
+        function increaseLevel() {
+            level++;
+            levelDisplay.textContent = 'Level: ' + level;
+            obstacleSpeed += 0.5;
+            obstacleFrequency = Math.max(500, obstacleFrequency - 200);
+            playerSize *= 1.05;
+            player.style.width = playerSize + 'px';
+            player.style.height = playerSize + 'px';
+            obstacleSize *= 1.04;
+            clearInterval(obstacleInterval);
+            obstacleInterval = setInterval(createObstacle, obstacleFrequency);
+        }
+
+        function increaseSpeedOverTime() {
+            speedIncreaseInterval = setInterval(() => {
+                obstacleSpeed += 0.2;
+            }, 5000);
+        }
+
+        function startGame() {
+            obstacleInterval = setInterval(createObstacle, obstacleFrequency);
+            increaseSpeedOverTime();
+        }
+
+        function openDevMenu() {
+            devMenu.style.display = 'block';
+        }
+
+        function closeDevMenu() {
+            devMenu.style.display = 'none';
+        }
+
+        function applyDevSettings() {
+            let newScore = document.getElementById('newScore').value;
+            let newLevel = document.getElementById('newLevel').value;
+
+            if (newScore !== "") {
+                score = parseInt(newScore);
+                scoreDisplay.textContent = 'Score: ' + score;
+            }
+            if (newLevel !== "") {
+                level = parseInt(newLevel);
+                levelDisplay.textContent = 'Level: ' + level;
+                obstacleSpeed = 2 + (level - 1) * 0.5;
+                playerSize = 25 * Math.pow(1.05, level - 1);
+                player.style.width = playerSize + 'px';
+                player.style.height = playerSize + 'px';
+            }
+            closeDevMenu();
+        }
+
+        startGame();
+    </script>
+</body>
+</html>
